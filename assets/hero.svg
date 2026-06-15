@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 440" width="1280" height="440"
+     font-family="'Segoe UI','Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b2a4a"/>
+      <stop offset="0.55" stop-color="#27224d"/>
+      <stop offset="1" stop-color="#3a1d4e"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#5cc8ff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#5cc8ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#c77dff" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#c77dff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- 壁纸 -->
+  <rect width="1280" height="440" fill="url(#wall)"/>
+  <circle cx="220" cy="120" r="280" fill="url(#glow)"/>
+  <circle cx="1080" cy="300" r="320" fill="url(#glow2)"/>
+
+  <!-- 品牌字 -->
+  <text x="56" y="92" fill="#ffffff" font-size="46" font-weight="700" letter-spacing="0.5">Baseline</text>
+  <text x="58" y="126" fill="#d7e3ff" font-size="18" opacity="0.85">桌面与任务栏之间的一条资源进度条</text>
+  <text x="58" y="152" fill="#9fb0d8" font-size="14" opacity="0.8">CPU · 内存 · GPU · 带宽 — 瞄一眼底边，不用开任务管理器</text>
+
+  <!-- 放大特写面板 -->
+  <g filter="url(#soft)">
+    <rect x="812" y="40" width="424" height="168" rx="16" fill="#0d1326" fill-opacity="0.78" stroke="#ffffff" stroke-opacity="0.12"/>
+  </g>
+  <text x="836" y="76" fill="#ffffff" font-size="16" font-weight="600">实时占用 · 放大特写</text>
+  <text x="836" y="98" fill="#9fb0d8" font-size="12">每段填充长度 = 该指标占用比</text>
+
+  <!-- 特写里的放大进度条（4 段） -->
+  <g>
+    <!-- CPU 62% -->
+    <rect x="836" y="120" width="94" height="30" fill="#4FC3F7" fill-opacity="0.22"/>
+    <rect x="836" y="120" width="58" height="30" fill="#4FC3F7"/>
+    <text x="844" y="140" fill="#10131a" font-size="13" font-weight="600">CPU 62%</text>
+    <!-- 内存 47% -->
+    <rect x="930" y="120" width="94" height="30" fill="#FFB74D" fill-opacity="0.22"/>
+    <rect x="930" y="120" width="44" height="30" fill="#FFB74D"/>
+    <text x="938" y="140" fill="#10131a" font-size="13" font-weight="600">内存 47%</text>
+    <!-- GPU 28% -->
+    <rect x="1024" y="120" width="94" height="30" fill="#81C784" fill-opacity="0.22"/>
+    <rect x="1024" y="120" width="26" height="30" fill="#81C784"/>
+    <text x="1032" y="140" fill="#10131a" font-size="13" font-weight="600">GPU 28%</text>
+    <!-- 带宽 18% -->
+    <rect x="1118" y="120" width="94" height="30" fill="#BA68C8" fill-opacity="0.22"/>
+    <rect x="1118" y="120" width="17" height="30" fill="#BA68C8"/>
+    <text x="1126" y="140" fill="#10131a" font-size="13" font-weight="600">带宽 18%</text>
+  </g>
+  <text x="836" y="178" fill="#7e8db5" font-size="11">↓ 真机里它就是底部这条 10px 细线（点击穿透，不挡操作）</text>
+
+  <!-- 特写指向底部真实进度条的虚线 -->
+  <line x1="1024" y1="208" x2="1024" y2="370" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="3 5"/>
+
+  <!-- 任务栏 -->
+  <rect x="0" y="388" width="1280" height="52" fill="#11151f" fill-opacity="0.96"/>
+  <!-- 开始按钮（四宫格） -->
+  <g fill="#5cc8ff">
+    <rect x="26" y="406" width="7" height="7" rx="1"/>
+    <rect x="36" y="406" width="7" height="7" rx="1"/>
+    <rect x="26" y="416" width="7" height="7" rx="1"/>
+    <rect x="36" y="416" width="7" height="7" rx="1"/>
+  </g>
+  <!-- 搜索条 -->
+  <rect x="62" y="402" width="170" height="26" rx="13" fill="#ffffff" fill-opacity="0.10"/>
+  <text x="78" y="419" fill="#aeb8cc" font-size="12">搜索</text>
+  <!-- 固定图标 -->
+  <rect x="256" y="403" width="24" height="24" rx="5" fill="#4FC3F7" fill-opacity="0.85"/>
+  <rect x="288" y="403" width="24" height="24" rx="5" fill="#81C784" fill-opacity="0.85"/>
+  <rect x="320" y="403" width="24" height="24" rx="5" fill="#FFB74D" fill-opacity="0.85"/>
+  <!-- 时钟 -->
+  <text x="1252" y="409" text-anchor="end" fill="#e6ecf7" font-size="14">21:42</text>
+  <text x="1252" y="427" text-anchor="end" fill="#aeb8cc" font-size="11">2026/6/15</text>
+
+  <!-- ★ Baseline 真实进度条：贴在任务栏上沿，横贯全宽，4 等分 ★ -->
+  <g>
+    <!-- CPU 62% -->
+    <rect x="0" y="372" width="320" height="16" fill="#4FC3F7" fill-opacity="0.22"/>
+    <rect x="0" y="372" width="198" height="16" fill="#4FC3F7"/>
+    <text x="8" y="384" fill="#10131a" font-size="11" font-weight="600">CPU</text>
+    <!-- 内存 47% -->
+    <rect x="320" y="372" width="320" height="16" fill="#FFB74D" fill-opacity="0.22"/>
+    <rect x="320" y="372" width="150" height="16" fill="#FFB74D"/>
+    <text x="328" y="384" fill="#10131a" font-size="11" font-weight="600">内存</text>
+    <!-- GPU 28% -->
+    <rect x="640" y="372" width="320" height="16" fill="#81C784" fill-opacity="0.22"/>
+    <rect x="640" y="372" width="90" height="16" fill="#81C784"/>
+    <text x="648" y="384" fill="#10131a" font-size="11" font-weight="600">GPU</text>
+    <!-- 带宽 18% -->
+    <rect x="960" y="372" width="320" height="16" fill="#BA68C8" fill-opacity="0.22"/>
+    <rect x="960" y="372" width="58" height="16" fill="#BA68C8"/>
+    <text x="968" y="384" fill="#10131a" font-size="11" font-weight="600">带宽</text>
+  </g>
+</svg>
