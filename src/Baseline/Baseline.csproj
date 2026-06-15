@@ -10,6 +10,7 @@
     <RootNamespace>Baseline</RootNamespace>
     <AssemblyName>Baseline</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\..\assets\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

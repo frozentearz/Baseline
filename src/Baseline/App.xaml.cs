@@ -40,9 +40,14 @@ public partial class App : Application
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add(exit);
 
+        var exePath = Environment.ProcessPath;
+        var trayIcon = !string.IsNullOrEmpty(exePath)
+            ? System.Drawing.Icon.ExtractAssociatedIcon(exePath)
+            : null;
+
         _tray = new Forms.NotifyIcon
         {
-            Icon = System.Drawing.SystemIcons.Information,
+            Icon = trayIcon ?? System.Drawing.SystemIcons.Information,
             Text = "Baseline 资源进度条",
             Visible = true,
             ContextMenuStrip = menu,
