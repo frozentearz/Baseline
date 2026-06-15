@@ -1,0 +1,71 @@
+<Window x:Class="Baseline.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Baseline 设置"
+        Width="380" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        FontFamily="Microsoft YaHei" FontSize="13">
+    <StackPanel Margin="18">
+
+        <TextBlock Text="外观" FontWeight="Bold" Margin="0,0,0,6"/>
+        <Grid Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="条高" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <Slider x:Name="HeightSlider" Grid.Column="1" Minimum="4" Maximum="24"
+                    TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"/>
+            <TextBlock x:Name="HeightValue" Grid.Column="2" Width="42" TextAlignment="Right"
+                       VerticalAlignment="Center" Margin="8,0,0,0"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+            <TextBlock Text="刷新" VerticalAlignment="Center" Margin="0,0,12,0"/>
+            <RadioButton x:Name="Refresh05" GroupName="refresh" Content="0.5 秒" Margin="0,0,12,0"/>
+            <RadioButton x:Name="Refresh1"  GroupName="refresh" Content="1 秒"   Margin="0,0,12,0"/>
+            <RadioButton x:Name="Refresh2"  GroupName="refresh" Content="2 秒"/>
+        </StackPanel>
+
+        <Separator Margin="0,14,0,14"/>
+
+        <TextBlock Text="网络" FontWeight="Bold" Margin="0,0,0,6"/>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="宽带上限" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBox x:Name="BandwidthBox" Width="70" VerticalAlignment="Center"/>
+            <TextBlock Text="Mbps" VerticalAlignment="Center" Margin="6,0,0,0"/>
+        </StackPanel>
+
+        <Separator Margin="0,14,0,14"/>
+
+        <TextBlock Text="显示哪些段" FontWeight="Bold" Margin="0,0,0,6"/>
+        <StackPanel Orientation="Horizontal">
+            <CheckBox x:Name="ShowCpu" Content="CPU"  Margin="0,0,16,0"/>
+            <CheckBox x:Name="ShowMem" Content="内存" Margin="0,0,16,0"/>
+            <CheckBox x:Name="ShowGpu" Content="GPU"  Margin="0,0,16,0"/>
+            <CheckBox x:Name="ShowNet" Content="带宽"/>
+        </StackPanel>
+
+        <Separator Margin="0,14,0,14"/>
+
+        <TextBlock Text="位置" FontWeight="Bold" Margin="0,0,0,6"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <RadioButton x:Name="PosBottom" GroupName="pos" Content="屏幕底边" Margin="0,0,16,0"/>
+            <RadioButton x:Name="PosTop"    GroupName="pos" Content="屏幕顶边"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="显示器" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <ComboBox x:Name="MonitorBox" Width="240"/>
+        </StackPanel>
+
+        <Separator Margin="0,14,0,14"/>
+
+        <CheckBox x:Name="AutostartBox" Content="开机自启"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button x:Name="CancelButton" Content="取消" Width="76" Height="28" Margin="0,0,10,0" IsCancel="True"/>
+            <Button x:Name="OkButton"     Content="确定" Width="76" Height="28" IsDefault="True"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

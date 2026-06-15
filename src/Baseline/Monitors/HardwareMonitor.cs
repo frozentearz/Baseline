@@ -25,7 +25,7 @@ public readonly record struct Metrics(double Cpu, double Gpu, double Mem, double
 public sealed class HardwareMonitor : IDisposable
 {
     private readonly Computer _computer;
-    private readonly double _netMaxBytesPerSec;
+    private double _netMaxBytesPerSec;
     private readonly List<IHardware> _hardware = new();
 
     private ISensor? _cpuLoad;
@@ -78,6 +78,10 @@ public sealed class HardwareMonitor : IDisposable
 
     /// <summary>GPU 是否成功识别（读不到通常是非管理员权限或无独显）。</summary>
     public bool GpuAvailable => _gpuLoad is not null;
+
+    /// <summary>更新网络满格基准（Mbps），设置变更时调用，无需重建采集器。</summary>
+    public void SetBandwidth(double bandwidthMbps)
+        => _netMaxBytesPerSec = Math.Max(bandwidthMbps, 0.001) * 1_000_000 / 8.0;
 
     public Metrics Read()
     {

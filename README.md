@@ -10,8 +10,9 @@ Four segments, left to right: **CPU / RAM / GPU / Network**. Each segment fills 
 
 ## Features
 - Live **CPU / RAM / GPU / Network** usage as a segmented bar
-- **Hover** over the bar to pop up exact percentages
-- Click-through & always-on-top; tray menu for autostart and exit
+- **Hover** over a segment to show its exact percentage inline
+- **Settings window** (tray → Settings): bar height, refresh rate, bandwidth, which segments to show, screen edge / monitor, autostart — saved to `%AppData%\Baseline\settings.json`
+- Click-through & always-on-top; lives in the system tray
 - Resolution / DPI aware (WPF DIP + PerMonitorV2)
 
 ## Download
