@@ -1,30 +1,35 @@
 # Baseline
 
+**English** | [简体中文](README.zh-CN.md)
+
 ![Baseline](assets/hero.png)
 
-屏幕底边一条横贯全宽的细进度条，紧贴任务栏上沿，实时显示资源占用：
+A thin, always-on-top progress bar pinned to the bottom edge of your screen — right above the taskbar. It shows live system resource usage at a glance, so you never have to open Task Manager.
 
-```
-[██████░░ CPU][█████░░░ 内存][███░░░░░ GPU][██░░░░░░ 带宽]
-```
+Four segments, left to right: **CPU / RAM / GPU / Network**. Each segment fills in proportion to its usage. The bar is click-through (clicks pass to whatever is behind it) and never steals focus.
 
-4 段从左到右：**CPU / 内存 / GPU / 带宽**，每段填充长度 = 占用比。常驻置顶、点击穿透（点它等于点桌面）。
+## Features
+- Live **CPU / RAM / GPU / Network** usage as a segmented bar
+- **Hover** over the bar to pop up exact percentages
+- Click-through & always-on-top; tray menu for autostart and exit
+- Resolution / DPI aware (WPF DIP + PerMonitorV2)
 
-## 运行
+## Download
+Grab the latest build from [Releases](https://github.com/frozentearz/Baseline/releases/latest):
+- **`Baseline.exe`** (~73 MB, recommended) — self-contained, just download and run. No .NET install required.
+- **framework-dependent zip** (~3.5 MB) — smaller, but requires the [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0); unzip and run `Baseline.exe`.
 
+Exit via the tray icon → Exit.
+
+## Build from source
 ```powershell
 dotnet run --project src/Baseline
 ```
+Requires the .NET 10 SDK. Tech stack: C# + WPF; hardware data via `LibreHardwareMonitorLib`.
 
-或编译后直接运行 `src/Baseline/bin/Debug/net10.0-windows/Baseline.exe`。
+## Notes
+- The Network segment is full at **50 Mbps** (≈ 6.25 MB/s download). Change `BandwidthMbps` in `Config/Settings.cs`.
+- If the GPU segment stays at 0, it's usually a permissions issue — run as administrator.
+- Colors, bar height and refresh interval all live in `Config/Settings.cs`.
 
-- 退出：托盘图标右键 → 退出。
-- 开机自启：托盘图标右键 → 开机自启（写当前用户启动项，可随时取消）。
-
-## 说明
-
-- **网络满格** = 50 Mbps 宽带（≈ 6.25 MB/s 下载）。改 `Config/Settings.cs` 的 `BandwidthMbps`。
-- **GPU 段为 0**：多为非管理员权限或无独显。以管理员身份运行可解。
-- 外观（颜色、条高、刷新间隔）全在 `Config/Settings.cs`。
-
-详细规范见 [CLAUDE.md](CLAUDE.md)。
+See [CLAUDE.md](CLAUDE.md) for project conventions (Chinese).
