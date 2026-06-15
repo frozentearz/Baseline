@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -7,6 +6,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Baseline.Config;
 using Baseline.Monitors;
+using Forms = System.Windows.Forms;
 
 namespace Baseline;
 
@@ -16,6 +16,12 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _timer;
     private Rectangle[] _fills = Array.Empty<Rectangle>();
     private double _segmentWidth;
+
+    // 悬停读数
+    private Metrics _last;
+    private ReadoutWindow? _readout;
+    private DispatcherTimer? _hoverTimer;
+    private double _dpiX = 1, _dpiY = 1;
 
     public MainWindow(HardwareMonitor monitor)
     {
@@ -31,9 +37,7 @@ public partial class MainWindow : Window
         base.OnSourceInitialized(e);
 
         // 点击穿透 + 不抢焦点 + 不在 Alt-Tab/任务栏出现
-        var hwnd = new WindowInteropHelper(this).Handle;
-        int ex = GetWindowLong(hwnd, GWL_EXSTYLE);
-        SetWindowLong(hwnd, GWL_EXSTYLE, ex | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE);
+        Native.MakeOverlay(new WindowInteropHelper(this).Handle);
 
         // 贴在工作区底边（任务栏上沿），横贯全宽
         var area = SystemParameters.WorkArea;
@@ -42,9 +46,23 @@ public partial class MainWindow : Window
         Width = area.Width;
         Height = Settings.BarHeight;
 
+        // 记录 DPI 缩放，用于把物理像素的光标坐标换算成 DIP
+        var src = PresentationSource.FromVisual(this);
+        if (src?.CompositionTarget is { } ct)
+        {
+            _dpiX = ct.TransformToDevice.M11;
+            _dpiY = ct.TransformToDevice.M22;
+        }
+
         BuildBars();
         Refresh();
         _timer.Start();
+
+        // 悬停读数浮窗 + 光标轮询
+        _readout = new ReadoutWindow();
+        _hoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
+        _hoverTimer.Tick += (_, _) => UpdateHover();
+        _hoverTimer.Start();
     }
 
     private void BuildBars()
@@ -107,29 +125,38 @@ public partial class MainWindow : Window
 
     private void Refresh()
     {
-        var m = _monitor.Read();
+        _last = _monitor.Read();
         var segs = Settings.Segments;
         for (int i = 0; i < _fills.Length && i < segs.Length; i++)
-            _fills[i].Width = Math.Max(0, _segmentWidth * Value(m, segs[i].Kind));
+            _fills[i].Width = Math.Max(0, _segmentWidth * _last[segs[i].Kind]);
     }
 
-    private static double Value(Metrics m, MetricKind kind) => kind switch
+    /// <summary>光标落在底边进度条上时，在其上方弹出读数浮窗；移开则隐藏。</summary>
+    private void UpdateHover()
     {
-        MetricKind.Cpu => m.Cpu,
-        MetricKind.Gpu => m.Gpu,
-        MetricKind.Mem => m.Mem,
-        MetricKind.Net => m.Net,
-        _ => 0,
-    };
+        if (_readout is null) return;
 
-    private const int GWL_EXSTYLE = -20;
-    private const int WS_EX_TRANSPARENT = 0x00000020;
-    private const int WS_EX_TOOLWINDOW = 0x00000080;
-    private const int WS_EX_NOACTIVATE = 0x08000000;
+        var c = Forms.Cursor.Position;          // 物理像素
+        var wa = Forms.Screen.PrimaryScreen!.WorkingArea;
+        int barPx = (int)Math.Ceiling(Settings.BarHeight * _dpiY);
+        bool over = c.X >= wa.Left && c.X <= wa.Right
+                    && c.Y >= wa.Bottom - Math.Max(barPx, 6) && c.Y < wa.Bottom;
 
-    [DllImport("user32.dll")]
-    private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        if (!over)
+        {
+            if (_readout.IsVisible) _readout.Hide();
+            return;
+        }
 
-    [DllImport("user32.dll")]
-    private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        _readout.SetValues(_last);
+        if (!_readout.IsVisible) _readout.Show();
+        _readout.UpdateLayout();
+
+        // 物理像素 → DIP，居中于光标、置于进度条上方
+        double minLeft = wa.Left / _dpiX;
+        double maxLeft = wa.Right / _dpiX - _readout.ActualWidth;
+        double left = c.X / _dpiX - _readout.ActualWidth / 2;
+        _readout.Left = Math.Clamp(left, minLeft, Math.Max(minLeft, maxLeft));
+        _readout.Top = wa.Bottom / _dpiY - Settings.BarHeight - _readout.ActualHeight - 6;
+    }
 }

@@ -1,10 +1,22 @@
 using System.Net.NetworkInformation;
+using Baseline.Config;
 using LibreHardwareMonitor.Hardware;
 
 namespace Baseline.Monitors;
 
 /// <summary>一次读取的四项指标，均为 0..1 的占用比。</summary>
-public readonly record struct Metrics(double Cpu, double Gpu, double Mem, double Net);
+public readonly record struct Metrics(double Cpu, double Gpu, double Mem, double Net)
+{
+    /// <summary>按指标种类取值。</summary>
+    public double this[MetricKind kind] => kind switch
+    {
+        MetricKind.Cpu => Cpu,
+        MetricKind.Gpu => Gpu,
+        MetricKind.Mem => Mem,
+        MetricKind.Net => Net,
+        _ => 0,
+    };
+}
 
 /// <summary>
 /// 采集 CPU/GPU/内存（LibreHardwareMonitor 的 load%）与网络下载占用比。
