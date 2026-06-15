@@ -15,12 +15,13 @@ public partial class MainWindow : Window
     private readonly HardwareMonitor _monitor;
     private readonly DispatcherTimer _timer;
     private Rectangle[] _fills = Array.Empty<Rectangle>();
+    private TextBlock[] _labels = Array.Empty<TextBlock>();
     private double _segmentWidth;
 
     // 悬停读数
     private Metrics _last;
-    private ReadoutWindow? _readout;
     private DispatcherTimer? _hoverTimer;
+    private int _hoveredIndex = -1;
     private double _dpiX = 1, _dpiY = 1;
 
     public MainWindow(HardwareMonitor monitor)
@@ -58,8 +59,7 @@ public partial class MainWindow : Window
         Refresh();
         _timer.Start();
 
-        // 悬停读数浮窗 + 光标轮询
-        _readout = new ReadoutWindow();
+        // 光标轮询：命中哪一段就在该段文字后追加百分比
         _hoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
         _hoverTimer.Tick += (_, _) => UpdateHover();
         _hoverTimer.Start();
@@ -71,6 +71,7 @@ public partial class MainWindow : Window
         var segs = Settings.Segments;
         _segmentWidth = Width / segs.Length;
         _fills = new Rectangle[segs.Length];
+        _labels = new TextBlock[segs.Length];
 
         double fontSize = Settings.BarHeight * Settings.LabelFontScale;
 
@@ -101,21 +102,24 @@ public partial class MainWindow : Window
             _fills[i] = fill;
 
             // 段内文字：水平左对齐、垂直居中
+            var text = new TextBlock
+            {
+                Text = segs[i].Label,
+                FontSize = fontSize,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = Brushes.Black,
+                HorizontalAlignment = HAlign.Left,
+                VerticalAlignment = VAlign.Center,
+                Margin = new Thickness(Settings.LabelLeftPadding, 0, 0, 0),
+            };
+            _labels[i] = text;
+
             var label = new Border
             {
                 Width = _segmentWidth,
                 Height = Settings.BarHeight,
                 Background = Brushes.Transparent,
-                Child = new TextBlock
-                {
-                    Text = segs[i].Label,
-                    FontSize = fontSize,
-                    FontWeight = FontWeights.SemiBold,
-                    Foreground = Brushes.Black,
-                    HorizontalAlignment = HAlign.Left,
-                    VerticalAlignment = VAlign.Center,
-                    Margin = new Thickness(Settings.LabelLeftPadding, 0, 0, 0),
-                },
+                Child = text,
             };
             Canvas.SetLeft(label, left);
             Canvas.SetTop(label, 0);
@@ -129,34 +133,42 @@ public partial class MainWindow : Window
         var segs = Settings.Segments;
         for (int i = 0; i < _fills.Length && i < segs.Length; i++)
             _fills[i].Width = Math.Max(0, _segmentWidth * _last[segs[i].Kind]);
+
+        UpdateLabels(); // 悬停中也让百分比随刷新跳动
     }
 
-    /// <summary>光标落在底边进度条上时，在其上方弹出读数浮窗；移开则隐藏。</summary>
+    /// <summary>光标落在底边进度条上时，算出悬停的是哪一段。</summary>
     private void UpdateHover()
     {
-        if (_readout is null) return;
-
         var c = Forms.Cursor.Position;          // 物理像素
         var wa = Forms.Screen.PrimaryScreen!.WorkingArea;
         int barPx = (int)Math.Ceiling(Settings.BarHeight * _dpiY);
         bool over = c.X >= wa.Left && c.X <= wa.Right
                     && c.Y >= wa.Bottom - Math.Max(barPx, 6) && c.Y < wa.Bottom;
 
-        if (!over)
+        int idx = -1;
+        if (over && _segmentWidth > 0)
         {
-            if (_readout.IsVisible) _readout.Hide();
-            return;
+            idx = (int)Math.Floor((c.X / _dpiX - Left) / _segmentWidth);
+            if (idx < 0 || idx >= _labels.Length) idx = -1;
         }
 
-        _readout.SetValues(_last);
-        if (!_readout.IsVisible) _readout.Show();
-        _readout.UpdateLayout();
+        if (idx != _hoveredIndex)
+        {
+            _hoveredIndex = idx;
+            UpdateLabels();
+        }
+    }
 
-        // 物理像素 → DIP，居中于光标、置于进度条上方
-        double minLeft = wa.Left / _dpiX;
-        double maxLeft = wa.Right / _dpiX - _readout.ActualWidth;
-        double left = c.X / _dpiX - _readout.ActualWidth / 2;
-        _readout.Left = Math.Clamp(left, minLeft, Math.Max(minLeft, maxLeft));
-        _readout.Top = wa.Bottom / _dpiY - Settings.BarHeight - _readout.ActualHeight - 6;
+    /// <summary>命中段显示「名称 百分比」，其余段只显示名称。</summary>
+    private void UpdateLabels()
+    {
+        var segs = Settings.Segments;
+        for (int i = 0; i < _labels.Length && i < segs.Length; i++)
+        {
+            _labels[i].Text = i == _hoveredIndex
+                ? $"{segs[i].Label} {Math.Round(_last[segs[i].Kind] * 100)}%"
+                : segs[i].Label;
+        }
     }
 }
