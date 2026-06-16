@@ -39,12 +39,16 @@ public partial class App : Application
         };
         autostart.Click += (_, _) => Autostart.Set(autostart.Checked);
 
+        var restart = new Forms.ToolStripMenuItem("重启");
+        restart.Click += (_, _) => Restart();
+
         var exit = new Forms.ToolStripMenuItem("退出");
         exit.Click += (_, _) => Shutdown();
 
         menu.Items.Add(settings);
         menu.Items.Add(autostart);
         menu.Items.Add(new Forms.ToolStripSeparator());
+        menu.Items.Add(restart);
         menu.Items.Add(exit);
         // 打开菜单时同步「开机自启」勾选（设置窗口里可能改过）
         menu.Opening += (_, _) => autostart.Checked = Autostart.IsEnabled();
@@ -62,6 +66,15 @@ public partial class App : Application
             ContextMenuStrip = menu,
         };
         _tray.DoubleClick += (_, _) => OpenSettings();
+    }
+
+    private void Restart()
+    {
+        var exe = Environment.ProcessPath;
+        if (!string.IsNullOrEmpty(exe))
+            System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo(exe) { UseShellExecute = true });
+        Shutdown();
     }
 
     private void OpenSettings()

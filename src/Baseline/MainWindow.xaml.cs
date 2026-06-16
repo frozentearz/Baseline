@@ -25,6 +25,8 @@ public partial class MainWindow : Window
 
     private Metrics _last;
     private DispatcherTimer? _hoverTimer;
+    private DispatcherTimer? _topmostTimer;
+    private IntPtr _hwnd;
     private int _hoveredIndex = -1;
     private double _dpiX = 1, _dpiY = 1;
 
@@ -45,7 +47,8 @@ public partial class MainWindow : Window
     {
         base.OnSourceInitialized(e);
 
-        Native.MakeOverlay(new WindowInteropHelper(this).Handle);
+        _hwnd = new WindowInteropHelper(this).Handle;
+        Native.MakeOverlay(_hwnd);
 
         var src = PresentationSource.FromVisual(this);
         if (src?.CompositionTarget is { } ct)
@@ -62,6 +65,11 @@ public partial class MainWindow : Window
         _hoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
         _hoverTimer.Tick += (_, _) => UpdateHover();
         _hoverTimer.Start();
+
+        // WPF 的 Topmost 会被后开的程序（如 Chrome 抢前台）悄悄摘掉，定时重新抬回置顶层。
+        _topmostTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _topmostTimer.Tick += (_, _) => Native.Reassert(_hwnd);
+        _topmostTimer.Start();
     }
 
     /// <summary>设置窗口「确定」后整体应用（不负责存盘，由调用方存）。</summary>
