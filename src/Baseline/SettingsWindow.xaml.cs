@@ -27,6 +27,11 @@ public partial class SettingsWindow : Window
             HeightValue.Text = $"{(int)Math.Round(e.NewValue)} px";
             _main.PreviewBarHeight(e.NewValue); // 实时预览
         };
+        OpacitySlider.ValueChanged += (_, e) =>
+        {
+            OpacityValue.Text = $"{(int)Math.Round(e.NewValue * 100)} %";
+            _main.PreviewOpacity(e.NewValue); // 实时预览
+        };
         OkButton.Click += OnOk;
         CancelButton.Click += (_, _) => Close();
     }
@@ -35,6 +40,9 @@ public partial class SettingsWindow : Window
     {
         HeightSlider.Value = _working.BarHeight;
         HeightValue.Text = $"{(int)Math.Round(_working.BarHeight)} px";
+
+        OpacitySlider.Value = _working.Opacity;
+        OpacityValue.Text = $"{(int)Math.Round(_working.Opacity * 100)} %";
 
         Refresh05.IsChecked = _working.RefreshSeconds == 0.5;
         Refresh1.IsChecked = _working.RefreshSeconds == 1;
@@ -72,6 +80,7 @@ public partial class SettingsWindow : Window
     private void OnOk(object sender, RoutedEventArgs e)
     {
         _working.BarHeight = HeightSlider.Value;
+        _working.Opacity = OpacitySlider.Value;
         _working.RefreshSeconds = Refresh05.IsChecked == true ? 0.5
                                 : Refresh2.IsChecked == true ? 2 : 1;
         if (double.TryParse(BandwidthBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var bw) && bw > 0)

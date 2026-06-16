@@ -92,6 +92,13 @@ public partial class MainWindow : Window
         Refresh();
     }
 
+    /// <summary>设置窗口里拖动透明度滑块时的实时预览（不存盘）。</summary>
+    public void PreviewOpacity(double opacity)
+    {
+        _settings.Opacity = Math.Clamp(opacity, 0.2, 1.0);
+        Opacity = _settings.Opacity;
+    }
+
     private Forms.Screen ResolveScreen()
     {
         if (!string.IsNullOrEmpty(_settings.MonitorDeviceName))
@@ -110,6 +117,7 @@ public partial class MainWindow : Window
         Top = _settings.Position == EdgePosition.Top
             ? wa.Top / _dpiY
             : wa.Bottom / _dpiY - _settings.BarHeight;
+        Opacity = _settings.Opacity;
     }
 
     private void BuildBars()

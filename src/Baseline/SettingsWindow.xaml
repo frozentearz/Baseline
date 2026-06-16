@@ -6,6 +6,81 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         FontFamily="Microsoft YaHei" FontSize="13">
+    <Window.Resources>
+        <!-- 主按钮「确定」：渐变蓝 + 柔和投影，高对比、有可按的立体感 -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <!-- 投影层：独立 Border，按下时减弱，模拟下压 -->
+                            <Border x:Name="shadow" CornerRadius="7" Background="#2563EB" Margin="0,2,0,0">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#2563EB" BlurRadius="12"
+                                                      ShadowDepth="2" Direction="270" Opacity="0.45"/>
+                                </Border.Effect>
+                            </Border>
+                            <Border x:Name="bd" CornerRadius="7">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#3B82F6" Offset="0"/>
+                                        <GradientStop Color="#2563EB" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#2563EB" Offset="0"/>
+                                            <GradientStop Color="#1D4ED8" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="shadow" Property="Opacity" Value="1.0"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#1E40AF"/>
+                                <Setter TargetName="bd" Property="Margin" Value="0,2,0,0"/>
+                                <Setter TargetName="shadow" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- 次按钮「取消」：浅灰幽灵按钮，主动降对比、悬停才浮出浅底，不与主按钮抢视线 -->
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="7" Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#F1F3F5"/>
+                                <Setter Property="Foreground" Value="#374151"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#E5E8EB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <StackPanel Margin="18">
 
         <TextBlock Text="外观" FontWeight="Bold" Margin="0,0,0,6"/>
@@ -19,6 +94,18 @@
             <Slider x:Name="HeightSlider" Grid.Column="1" Minimum="4" Maximum="24"
                     TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"/>
             <TextBlock x:Name="HeightValue" Grid.Column="2" Width="42" TextAlignment="Right"
+                       VerticalAlignment="Center" Margin="8,0,0,0"/>
+        </Grid>
+        <Grid Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="透明度" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <Slider x:Name="OpacitySlider" Grid.Column="1" Minimum="0.2" Maximum="1"
+                    TickFrequency="0.05" IsSnapToTickEnabled="True" VerticalAlignment="Center"/>
+            <TextBlock x:Name="OpacityValue" Grid.Column="2" Width="42" TextAlignment="Right"
                        VerticalAlignment="Center" Margin="8,0,0,0"/>
         </Grid>
         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
@@ -64,8 +151,10 @@
         <CheckBox x:Name="AutostartBox" Content="开机自启"/>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
-            <Button x:Name="CancelButton" Content="取消" Width="76" Height="28" Margin="0,0,10,0" IsCancel="True"/>
-            <Button x:Name="OkButton"     Content="确定" Width="76" Height="28" IsDefault="True"/>
+            <Button x:Name="CancelButton" Content="取消" Width="76" Height="30" Margin="0,0,10,0"
+                    Style="{StaticResource SecondaryButton}" IsCancel="True"/>
+            <Button x:Name="OkButton"     Content="确定" Width="88" Height="30"
+                    Style="{StaticResource PrimaryButton}" IsDefault="True"/>
         </StackPanel>
     </StackPanel>
 </Window>

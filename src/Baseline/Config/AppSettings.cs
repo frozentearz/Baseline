@@ -10,6 +10,7 @@ public enum EdgePosition { Bottom, Top }
 public sealed class AppSettings
 {
     public double BarHeight { get; set; } = 10;     // DIP，4–24
+    public double Opacity { get; set; } = 1.0;       // 整条不透明度，0.2–1.0
     public double RefreshSeconds { get; set; } = 1;  // 0.5 / 1 / 2
     public double BandwidthMbps { get; set; } = 50;  // 网络满格基准
 
@@ -38,6 +39,7 @@ public sealed class AppSettings
     public void Normalize()
     {
         BarHeight = Math.Clamp(BarHeight, 4, 24);
+        Opacity = double.IsNaN(Opacity) ? 1.0 : Math.Clamp(Opacity, 0.2, 1.0);
         if (RefreshSeconds is not (0.5 or 1 or 2)) RefreshSeconds = 1;
         if (BandwidthMbps <= 0 || double.IsNaN(BandwidthMbps)) BandwidthMbps = 50;
         // 至少保留一个段，全关时回退为全开
