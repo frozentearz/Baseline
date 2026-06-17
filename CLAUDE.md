@@ -22,7 +22,7 @@
 | CPU | LHM `CPU Total` load | 100% 占用 |
 | 内存 | LHM `Memory` load | 物理内存 100% 占用 |
 | GPU | LHM GPU `Core` load（NVIDIA 优先） | 100% 占用 |
-| 带宽 | 各活动网卡下载字节增量/秒 | **50 Mbps 宽带 = 6.25 MB/s**（`Settings.BandwidthMbps`） |
+| 带宽 | 增量最大的活动网卡下载字节/秒（非全部相加，避免 VPN/虚拟网卡重复计数） | **50 Mbps 宽带 = 6.25 MB/s**（`Settings.BandwidthMbps`） |
 
 - 「50M 宽带」是 50 **Mbps**，÷8 = 6.25 MB/s 才是满格速度，不要写成 50 MB/s。
 - 网络只取**下载**速度。要改带宽改 `Settings.BandwidthMbps`。

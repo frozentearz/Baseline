@@ -32,7 +32,9 @@ public sealed class HardwareMonitor : IDisposable
     private ISensor? _gpuLoad;
     private ISensor? _memLoad;
 
-    private long _lastRecvBytes;
+    // 按网卡 Id 记录上次的累计接收字节。口径取「增量最大的那块网卡」而非全部相加，
+    // 以免 VPN/TUN、VirtualBox、WSL/Hyper-V 等伴生虚拟网卡把同一份下载流量重复计数。
+    private readonly Dictionary<string, long> _lastRecvByIf = new();
     private long _lastTicks;
 
     public HardwareMonitor(double bandwidthMbps)
@@ -72,7 +74,7 @@ public sealed class HardwareMonitor : IDisposable
             }
         }
 
-        _lastRecvBytes = TotalBytesReceived();
+        SeedRecvSnapshot();
         _lastTicks = DateTime.UtcNow.Ticks;
     }
 
@@ -91,14 +93,32 @@ public sealed class HardwareMonitor : IDisposable
         var gpu = Fraction(_gpuLoad);
         var mem = Fraction(_memLoad);
 
-        long recv = TotalBytesReceived();
         long ticks = DateTime.UtcNow.Ticks;
         double seconds = Math.Max((ticks - _lastTicks) / (double)TimeSpan.TicksPerSecond, 0.001);
-        double bytesPerSec = (recv - _lastRecvBytes) / seconds;
-        _lastRecvBytes = recv;
         _lastTicks = ticks;
 
-        double net = Math.Clamp(bytesPerSec / _netMaxBytesPerSec, 0, 1);
+        // 取增量最大的网卡作为真实下行速率。第一次见到的网卡（启动后才 Up 的 VPN 等）
+        // 没有历史值，只记录不计增量，避免把历史累计字节误当成这一秒的流量。
+        double maxBytesPerSec = 0;
+        foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+        {
+            if (ni.OperationalStatus != OperationalStatus.Up) continue;
+            if (ni.NetworkInterfaceType is NetworkInterfaceType.Loopback or NetworkInterfaceType.Tunnel)
+                continue;
+
+            long bytes;
+            try { bytes = ni.GetIPv4Statistics().BytesReceived; }
+            catch { continue; /* 个别虚拟网卡不支持统计，忽略 */ }
+
+            if (_lastRecvByIf.TryGetValue(ni.Id, out var prev))
+            {
+                double bps = (bytes - prev) / seconds;
+                if (bps > maxBytesPerSec) maxBytesPerSec = bps;
+            }
+            _lastRecvByIf[ni.Id] = bytes;
+        }
+
+        double net = Math.Clamp(maxBytesPerSec / _netMaxBytesPerSec, 0, 1);
 
         return new Metrics(cpu, gpu, mem, net);
     }
@@ -110,18 +130,17 @@ public sealed class HardwareMonitor : IDisposable
         return Math.Clamp(v / 100.0, 0, 1);
     }
 
-    private static long TotalBytesReceived()
+    /// <summary>构造时给每块活动网卡记下初始累计值，作为首次增量的基线。</summary>
+    private void SeedRecvSnapshot()
     {
-        long sum = 0;
         foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
         {
             if (ni.OperationalStatus != OperationalStatus.Up) continue;
             if (ni.NetworkInterfaceType is NetworkInterfaceType.Loopback or NetworkInterfaceType.Tunnel)
                 continue;
-            try { sum += ni.GetIPv4Statistics().BytesReceived; }
+            try { _lastRecvByIf[ni.Id] = ni.GetIPv4Statistics().BytesReceived; }
             catch { /* 个别虚拟网卡不支持统计，忽略 */ }
         }
-        return sum;
     }
 
     public void Dispose() => _computer.Close();
