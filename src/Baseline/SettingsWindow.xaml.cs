@@ -20,6 +20,7 @@ public partial class SettingsWindow : Window
         _original = main.CurrentSettings.Clone();
         _working = main.CurrentSettings.Clone();
 
+        Localize();
         LoadInto();
 
         HeightSlider.ValueChanged += (_, e) =>
@@ -34,6 +35,40 @@ public partial class SettingsWindow : Window
         };
         OkButton.Click += OnOk;
         CancelButton.Click += (_, _) => Close();
+    }
+
+    /// <summary>按当前语言填充所有静态文案（标题、分组标题、字段名、按钮）。</summary>
+    private void Localize()
+    {
+        Title = Loc.T("settings.title");
+        AppearanceHeader.Text = Loc.T("group.appearance");
+        BarHeightLabel.Text = Loc.T("field.barHeight");
+        OpacityLabel.Text = Loc.T("field.opacity");
+        RefreshLabel.Text = Loc.T("field.refresh");
+
+        string sec = Loc.T("unit.sec");
+        Refresh05.Content = $"0.5 {sec}";
+        Refresh1.Content = $"1 {sec}";
+        Refresh2.Content = $"2 {sec}";
+
+        NetworkHeader.Text = Loc.T("group.network");
+        BandwidthLabel.Text = Loc.T("field.bandwidth");
+
+        SegmentsHeader.Text = Loc.T("group.segments");
+        ShowCpu.Content = Loc.SegLabel(MetricKind.Cpu);
+        ShowMem.Content = Loc.SegLabel(MetricKind.Mem);
+        ShowGpu.Content = Loc.SegLabel(MetricKind.Gpu);
+        ShowNet.Content = Loc.SegLabel(MetricKind.Net);
+
+        PositionHeader.Text = Loc.T("group.position");
+        PosBottom.Content = Loc.T("pos.bottom");
+        PosTop.Content = Loc.T("pos.top");
+        MonitorLabel.Text = Loc.T("field.monitor");
+
+        LanguageLabel.Text = Loc.T("field.language");
+        AutostartBox.Content = Loc.T("field.autostart");
+        CancelButton.Content = Loc.T("btn.cancel");
+        OkButton.Content = Loc.T("btn.ok");
     }
 
     private void LoadInto()
@@ -58,11 +93,11 @@ public partial class SettingsWindow : Window
         PosBottom.IsChecked = _working.Position == EdgePosition.Bottom;
         PosTop.IsChecked = _working.Position == EdgePosition.Top;
 
-        string? primary = Forms.Screen.PrimaryScreen?.DeviceName;
         foreach (var s in Forms.Screen.AllScreens)
         {
             var b = s.Bounds;
-            string text = (s.Primary ? "主显示器 " : "显示器 ") + $"({b.Width}×{b.Height})";
+            string text = (s.Primary ? Loc.T("monitor.primary") : Loc.T("monitor.secondary"))
+                          + $" ({b.Width}×{b.Height})";
             var item = new ComboBoxItem { Content = text, Tag = s.DeviceName };
             MonitorBox.Items.Add(item);
 
@@ -73,6 +108,17 @@ public partial class SettingsWindow : Window
         }
         if (MonitorBox.SelectedItem is null && MonitorBox.Items.Count > 0)
             MonitorBox.SelectedIndex = 0;
+
+        foreach (var (lang, display) in Loc.Choices)
+        {
+            // System 项随当前语言显示「跟随系统」，其余用各语言自身写法
+            string text = lang == AppLanguage.System ? Loc.T("lang.system") : display;
+            var item = new ComboBoxItem { Content = text, Tag = lang };
+            LanguageBox.Items.Add(item);
+            if (lang == _working.Language) LanguageBox.SelectedItem = item;
+        }
+        if (LanguageBox.SelectedItem is null && LanguageBox.Items.Count > 0)
+            LanguageBox.SelectedIndex = 0;
 
         AutostartBox.IsChecked = Autostart.IsEnabled();
     }
@@ -94,9 +140,15 @@ public partial class SettingsWindow : Window
         var dev = (MonitorBox.SelectedItem as ComboBoxItem)?.Tag as string;
         _working.MonitorDeviceName = dev == Forms.Screen.PrimaryScreen?.DeviceName ? null : dev;
 
+        if ((LanguageBox.SelectedItem as ComboBoxItem)?.Tag is AppLanguage lang)
+            _working.Language = lang;
+
         _working.Normalize();
         Autostart.Set(AutostartBox.IsChecked == true);
 
+        // 先切语言再 ApplySettings：进度条段名会在 BuildBars 里用新语言重建，
+        // 托盘菜单经 Loc.Changed 事件同步刷新。
+        Loc.SetLanguage(_working.Language);
         _main.ApplySettings(_working);
         _working.Save();
         _committed = true;

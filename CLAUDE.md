@@ -43,14 +43,17 @@ statusline/
     ├── Monitors/
     │   └── HardwareMonitor.cs # 4 指标采集
     └── Config/
-        ├── Settings.cs        # 带宽、刷新间隔、颜色、条高
+        ├── Settings.cs        # 段定义（指标+颜色）、字号/边距等细粒度常量
+        ├── AppSettings.cs     # 用户可调并持久化的配置（条高/透明度/带宽/语言/位置…）
+        ├── Loc.cs             # i18n 字符串表：所有面向用户文案集中于此，10 种语言
         └── Autostart.cs       # HKCU Run 开机自启
 ```
 
 ## 约定
 
 - 权限：默认**普通权限**（只读 load%，无需管理员）。GPU 读不到再以管理员运行。
-- 命名：类型/文件英文 PascalCase；面向用户的字符串（托盘菜单）用中文。
+- 命名：类型/文件英文 PascalCase。面向用户的字符串**一律走 `Loc.T(key)`**，不在 XAML/代码里写死任何语言；新增文案先在 `Loc.cs` 的字符串表补齐全部 10 种语言（顺序严格对应 `AppLanguage` 枚举）。
+- 进度条段名也走 `Loc.SegLabel(kind)`，CPU/GPU 全语言通用，内存/带宽随语言变。
 - 颜色、条高、刷新间隔、带宽都集中在 `Settings.cs`，不要散落到各处硬编码。
 - 退出只能通过托盘「退出」（`ShutdownMode=OnExplicitShutdown`）。
 - 文件编码：源码一律 UTF-8。**禁止用 PowerShell 5.1 的 `Set-Content`/`Out-File` 批量改含中文的文件**（会按 ANSI 重写导致乱码），改文件用编辑器/Write 工具。

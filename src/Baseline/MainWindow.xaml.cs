@@ -17,8 +17,8 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _timer;
     private AppSettings _settings;
 
-    private (MetricKind Kind, string Label, Color Color)[] _shown =
-        Array.Empty<(MetricKind, string, Color)>();
+    private (MetricKind Kind, Color Color)[] _shown =
+        Array.Empty<(MetricKind, Color)>();
     private Rectangle[] _fills = Array.Empty<Rectangle>();
     private TextBlock[] _labels = Array.Empty<TextBlock>();
     private double _segmentWidth;
@@ -160,7 +160,7 @@ public partial class MainWindow : Window
 
             var text = new TextBlock
             {
-                Text = _shown[i].Label,
+                Text = Loc.SegLabel(_shown[i].Kind),
                 FontSize = fontSize,
                 FontWeight = FontWeights.SemiBold,
                 Foreground = Brushes.Black,
@@ -222,14 +222,15 @@ public partial class MainWindow : Window
         {
             if (i != _hoveredIndex)
             {
-                _labels[i].Text = _shown[i].Label;
+                _labels[i].Text = Loc.SegLabel(_shown[i].Kind);
                 continue;
             }
 
             // 带宽段显示真实网速，其余段显示占用百分比。
+            string label = Loc.SegLabel(_shown[i].Kind);
             _labels[i].Text = _shown[i].Kind == MetricKind.Net
-                ? $"{_shown[i].Label} {FormatSpeed(_monitor.LastNetBytesPerSec)}"
-                : $"{_shown[i].Label} {Math.Round(_last[_shown[i].Kind] * 100)}%";
+                ? $"{label} {FormatSpeed(_monitor.LastNetBytesPerSec)}"
+                : $"{label} {Math.Round(_last[_shown[i].Kind] * 100)}%";
         }
     }
 

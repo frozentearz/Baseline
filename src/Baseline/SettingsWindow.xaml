@@ -1,11 +1,10 @@
 <Window x:Class="Baseline.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Baseline 设置"
         Width="380" SizeToContent="Height"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        FontFamily="Microsoft YaHei" FontSize="13">
+        FontFamily="Segoe UI, Microsoft YaHei, Meiryo, Malgun Gothic" FontSize="13">
     <Window.Resources>
         <!-- 主按钮「确定」：渐变蓝 + 柔和投影，高对比、有可按的立体感 -->
         <Style x:Key="PrimaryButton" TargetType="Button">
@@ -83,14 +82,14 @@
     </Window.Resources>
     <StackPanel Margin="18">
 
-        <TextBlock Text="外观" FontWeight="Bold" Margin="0,0,0,6"/>
+        <TextBlock x:Name="AppearanceHeader" FontWeight="Bold" Margin="0,0,0,6"/>
         <Grid Margin="0,0,0,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="条高" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock x:Name="BarHeightLabel" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
             <Slider x:Name="HeightSlider" Grid.Column="1" Minimum="4" Maximum="24"
                     TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"/>
             <TextBlock x:Name="HeightValue" Grid.Column="2" Width="42" TextAlignment="Right"
@@ -102,58 +101,62 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="透明度" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock x:Name="OpacityLabel" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
             <Slider x:Name="OpacitySlider" Grid.Column="1" Minimum="0.2" Maximum="1"
                     TickFrequency="0.05" IsSnapToTickEnabled="True" VerticalAlignment="Center"/>
             <TextBlock x:Name="OpacityValue" Grid.Column="2" Width="42" TextAlignment="Right"
                        VerticalAlignment="Center" Margin="8,0,0,0"/>
         </Grid>
         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-            <TextBlock Text="刷新" VerticalAlignment="Center" Margin="0,0,12,0"/>
-            <RadioButton x:Name="Refresh05" GroupName="refresh" Content="0.5 秒" Margin="0,0,12,0"/>
-            <RadioButton x:Name="Refresh1"  GroupName="refresh" Content="1 秒"   Margin="0,0,12,0"/>
-            <RadioButton x:Name="Refresh2"  GroupName="refresh" Content="2 秒"/>
+            <TextBlock x:Name="RefreshLabel" VerticalAlignment="Center" Margin="0,0,12,0"/>
+            <RadioButton x:Name="Refresh05" GroupName="refresh" Margin="0,0,12,0"/>
+            <RadioButton x:Name="Refresh1"  GroupName="refresh" Margin="0,0,12,0"/>
+            <RadioButton x:Name="Refresh2"  GroupName="refresh"/>
         </StackPanel>
 
         <Separator Margin="0,14,0,14"/>
 
-        <TextBlock Text="网络" FontWeight="Bold" Margin="0,0,0,6"/>
+        <TextBlock x:Name="NetworkHeader" FontWeight="Bold" Margin="0,0,0,6"/>
         <StackPanel Orientation="Horizontal">
-            <TextBlock Text="宽带上限" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock x:Name="BandwidthLabel" VerticalAlignment="Center" Margin="0,0,10,0"/>
             <TextBox x:Name="BandwidthBox" Width="70" VerticalAlignment="Center"/>
             <TextBlock Text="Mbps" VerticalAlignment="Center" Margin="6,0,0,0"/>
         </StackPanel>
 
         <Separator Margin="0,14,0,14"/>
 
-        <TextBlock Text="显示哪些段" FontWeight="Bold" Margin="0,0,0,6"/>
+        <TextBlock x:Name="SegmentsHeader" FontWeight="Bold" Margin="0,0,0,6"/>
         <StackPanel Orientation="Horizontal">
-            <CheckBox x:Name="ShowCpu" Content="CPU"  Margin="0,0,16,0"/>
-            <CheckBox x:Name="ShowMem" Content="内存" Margin="0,0,16,0"/>
-            <CheckBox x:Name="ShowGpu" Content="GPU"  Margin="0,0,16,0"/>
-            <CheckBox x:Name="ShowNet" Content="带宽"/>
+            <CheckBox x:Name="ShowCpu" Margin="0,0,16,0"/>
+            <CheckBox x:Name="ShowMem" Margin="0,0,16,0"/>
+            <CheckBox x:Name="ShowGpu" Margin="0,0,16,0"/>
+            <CheckBox x:Name="ShowNet"/>
         </StackPanel>
 
         <Separator Margin="0,14,0,14"/>
 
-        <TextBlock Text="位置" FontWeight="Bold" Margin="0,0,0,6"/>
+        <TextBlock x:Name="PositionHeader" FontWeight="Bold" Margin="0,0,0,6"/>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-            <RadioButton x:Name="PosBottom" GroupName="pos" Content="屏幕底边" Margin="0,0,16,0"/>
-            <RadioButton x:Name="PosTop"    GroupName="pos" Content="屏幕顶边"/>
+            <RadioButton x:Name="PosBottom" GroupName="pos" Margin="0,0,16,0"/>
+            <RadioButton x:Name="PosTop"    GroupName="pos"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
-            <TextBlock Text="显示器" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock x:Name="MonitorLabel" VerticalAlignment="Center" Margin="0,0,10,0"/>
             <ComboBox x:Name="MonitorBox" Width="240"/>
         </StackPanel>
 
         <Separator Margin="0,14,0,14"/>
 
-        <CheckBox x:Name="AutostartBox" Content="开机自启"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock x:Name="LanguageLabel" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <ComboBox x:Name="LanguageBox" Width="200"/>
+        </StackPanel>
+        <CheckBox x:Name="AutostartBox"/>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
-            <Button x:Name="CancelButton" Content="取消" Width="76" Height="30" Margin="0,0,10,0"
+            <Button x:Name="CancelButton" Width="76" Height="30" Margin="0,0,10,0"
                     Style="{StaticResource SecondaryButton}" IsCancel="True"/>
-            <Button x:Name="OkButton"     Content="确定" Width="88" Height="30"
+            <Button x:Name="OkButton"     Width="88" Height="30"
                     Style="{StaticResource PrimaryButton}" IsDefault="True"/>
         </StackPanel>
     </StackPanel>

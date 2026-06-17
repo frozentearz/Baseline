@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Baseline.Config;
 
@@ -13,6 +14,8 @@ public sealed class AppSettings
     public double Opacity { get; set; } = 1.0;       // 整条不透明度，0.2–1.0
     public double RefreshSeconds { get; set; } = 1;  // 0.5 / 1 / 2
     public double BandwidthMbps { get; set; } = 50;  // 网络满格基准
+
+    public AppLanguage Language { get; set; } = AppLanguage.System; // 界面语言，默认跟随系统
 
     public bool ShowCpu { get; set; } = true;
     public bool ShowMem { get; set; } = true;
@@ -42,13 +45,18 @@ public sealed class AppSettings
         Opacity = double.IsNaN(Opacity) ? 1.0 : Math.Clamp(Opacity, 0.2, 1.0);
         if (RefreshSeconds is not (0.5 or 1 or 2)) RefreshSeconds = 1;
         if (BandwidthMbps <= 0 || double.IsNaN(BandwidthMbps)) BandwidthMbps = 50;
+        if (!Enum.IsDefined(Language)) Language = AppLanguage.System;
         // 至少保留一个段，全关时回退为全开
         if (!ShowCpu && !ShowMem && !ShowGpu && !ShowNet)
             ShowCpu = ShowMem = ShowGpu = ShowNet = true;
     }
 
     // ---- 持久化 ----
-    private static readonly JsonSerializerOptions JsonOpts = new() { WriteIndented = true };
+    private static readonly JsonSerializerOptions JsonOpts = new()
+    {
+        WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() }, // 枚举写成字符串，便于手改 settings.json
+    };
 
     public static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -60,7 +68,7 @@ public sealed class AppSettings
         {
             if (File.Exists(FilePath))
             {
-                var s = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath));
+                var s = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath), JsonOpts);
                 if (s is not null) { s.Normalize(); return s; }
             }
         }

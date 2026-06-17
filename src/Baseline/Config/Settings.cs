@@ -14,12 +14,12 @@ public static class Settings
     /// <summary>段内文字左边距（DIP）。</summary>
     public const double LabelLeftPadding = 4;
 
-    /// <summary>段定义：指标 + 文字 + 颜色，顺序即从左到右的显示顺序。</summary>
-    public static readonly (MetricKind Kind, string Label, Color Color)[] Segments =
+    /// <summary>段定义：指标 + 颜色，顺序即从左到右的显示顺序。段名走 <see cref="Loc.SegLabel"/>。</summary>
+    public static readonly (MetricKind Kind, Color Color)[] Segments =
     {
-        (MetricKind.Cpu, "CPU",  Color.FromRgb(0x4F, 0xC3, 0xF7)), // 蓝
-        (MetricKind.Mem, "内存", Color.FromRgb(0xFF, 0xB7, 0x4D)), // 橙
-        (MetricKind.Gpu, "GPU",  Color.FromRgb(0x81, 0xC7, 0x84)), // 绿
-        (MetricKind.Net, "带宽", Color.FromRgb(0xBA, 0x68, 0xC8)), // 紫
+        (MetricKind.Cpu, Color.FromRgb(0x4F, 0xC3, 0xF7)), // 蓝
+        (MetricKind.Mem, Color.FromRgb(0xFF, 0xB7, 0x4D)), // 橙
+        (MetricKind.Gpu, Color.FromRgb(0x81, 0xC7, 0x84)), // 绿
+        (MetricKind.Net, Color.FromRgb(0xBA, 0x68, 0xC8)), // 紫
     };
 }
