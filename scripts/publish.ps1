@@ -43,6 +43,18 @@ function Clear-Build {
 
 if($Release -and -not $NotesFile){ throw '-Release 需要同时指定 -NotesFile' }
 
+# 发版前同步远端：gh release create 会在远端分支 HEAD 上打 tag，若本地有未推送的提交，
+# tag 会落到旧代码上、与上传的二进制不一致（v1.4.0 首发就踩过）。先确保跟踪文件无未提交
+# 改动（忽略 publish/ 等未跟踪产物），再把当前分支推上去。
+if($Release){
+  $dirty = git status --porcelain -uno
+  if($dirty){ throw "工作区有未提交的改动，发版前请先提交或清理：`n$dirty" }
+  $branch = (git rev-parse --abbrev-ref HEAD).Trim()
+  Write-Host "推送 $branch 到 origin ..." -ForegroundColor Cyan
+  git push origin $branch
+  if($LASTEXITCODE -ne 0){ throw 'git push 失败，发版中止' }
+}
+
 # 1) 框架依赖版（--no-self-contained 是关键）
 Write-Host "[1/3] 构建框架依赖版 ..." -ForegroundColor Cyan
 Remove-Item $FdDir -Recurse -Force -ErrorAction SilentlyContinue
@@ -74,7 +86,9 @@ if($Release){
   $notesPath = if([IO.Path]::IsPathRooted($NotesFile)){ $NotesFile } else { Join-Path $Root $NotesFile }
   if(-not (Test-Path $notesPath)){ throw "找不到发布说明: $notesPath" }
   Write-Host "`n创建 GitHub release v$Version ..." -ForegroundColor Cyan
-  gh release create "v$Version" --title "Baseline v$Version" --notes-file $notesPath $scExe $Zip
+  # --target 钉到当前 commit，避免 tag 落到远端分支的其他 HEAD 上。
+  $head = (git rev-parse HEAD).Trim()
+  gh release create "v$Version" --target $head --title "Baseline v$Version" --notes-file $notesPath $scExe $Zip
   if($LASTEXITCODE -ne 0){ throw 'gh release create 失败' }
   Write-Host "release 已发布" -ForegroundColor Green
 }
