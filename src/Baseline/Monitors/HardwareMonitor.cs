@@ -81,6 +81,9 @@ public sealed class HardwareMonitor : IDisposable
     /// <summary>GPU 是否成功识别（读不到通常是非管理员权限或无独显）。</summary>
     public bool GpuAvailable => _gpuLoad is not null;
 
+    /// <summary>最近一次 Read() 测得的下行速率（字节/秒），供悬浮显示真实网速用。</summary>
+    public double LastNetBytesPerSec { get; private set; }
+
     /// <summary>更新网络满格基准（Mbps），设置变更时调用，无需重建采集器。</summary>
     public void SetBandwidth(double bandwidthMbps)
         => _netMaxBytesPerSec = Math.Max(bandwidthMbps, 0.001) * 1_000_000 / 8.0;
@@ -118,6 +121,7 @@ public sealed class HardwareMonitor : IDisposable
             _lastRecvByIf[ni.Id] = bytes;
         }
 
+        LastNetBytesPerSec = maxBytesPerSec;
         double net = Math.Clamp(maxBytesPerSec / _netMaxBytesPerSec, 0, 1);
 
         return new Metrics(cpu, gpu, mem, net);

@@ -220,9 +220,21 @@ public partial class MainWindow : Window
     {
         for (int i = 0; i < _labels.Length; i++)
         {
-            _labels[i].Text = i == _hoveredIndex
-                ? $"{_shown[i].Label} {Math.Round(_last[_shown[i].Kind] * 100)}%"
-                : _shown[i].Label;
+            if (i != _hoveredIndex)
+            {
+                _labels[i].Text = _shown[i].Label;
+                continue;
+            }
+
+            // 带宽段显示真实网速，其余段显示占用百分比。
+            _labels[i].Text = _shown[i].Kind == MetricKind.Net
+                ? $"{_shown[i].Label} {FormatSpeed(_monitor.LastNetBytesPerSec)}"
+                : $"{_shown[i].Label} {Math.Round(_last[_shown[i].Kind] * 100)}%";
         }
     }
+
+    /// <summary>字节/秒格式化为网速（口径与满格换算一致，按十进制 MB = 1e6 字节）。</summary>
+    private static string FormatSpeed(double bytesPerSec) => bytesPerSec >= 1_000_000
+        ? $"{bytesPerSec / 1_000_000:0.0} MB/s"
+        : $"{bytesPerSec / 1_000:0} KB/s";
 }
